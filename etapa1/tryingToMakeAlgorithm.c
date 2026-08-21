@@ -1,35 +1,43 @@
 #include <stdio.h>
 
-int bin2Bcd(int);
+void bin2Bcd(int, int *const , const int);
+const int DIVISOR[10] = {
+    1000000000,
+    100000000,
+    10000000,
+    1000000,
+    100000,
+    10000,
+    1000,
+    100,
+    10,
+    1,
+};
 
 int main() {
     int num = 548;
-    int bcd = bin2Bcd(num);
+    const int len_digits = 10;
+    // int digits[len_digits];
+    int digits[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    bin2Bcd(num, digits, len_digits);
 
-    printf("%d post binario a bcd: %X\n", num, bcd);
+    printf("Numero original: %d\n\n", num);
+    for(int i = 0; i < len_digits; i++) {
+        printf("Digito %d post binario a bcd: %X\n", i+1, digits[i]);
+    }
     return 0;
 }
 
-int bin2Bcd(int s0) {
-    int s1;
-
-    int digit;
-    int lim = 32;
+// TODO:
+// Compilar y probar esta vaina
+void bin2Bcd(int num, int *const  digits, const int len_digits) {
     int i;
     int j;
 
-    for (i=0; i < lim; i=i+1) {
-        for (j=0; j < lim; j=j+1) {
-            // TODO:
-            // Poner digito bien
-            digit = s1 << 4*j;
-            if (digit >= 5) {
-                s1[j : j+3] = s1[j : j+3] + 3;
-            }
+    for (j=0; j < len_digits; j++) {
+        for (i=0; num >= DIVISOR[j]; i=i+1) {
+            digits[j] += 1;
+            num -= DIVISOR[j];
         }
-
-        // TODO:
-        // Poner s1 correcto
-        s1 = s0 << 1;
     }
 }
