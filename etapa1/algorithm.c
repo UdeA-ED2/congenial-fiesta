@@ -21,6 +21,7 @@ const int DIVISOR[10] = {
 
 int main() {
     int num = 548;
+    int num2 = 372;
 
     // Hay al menos un numero que termina con cada digito (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
     // Contienen digitos que se repiten en diferentes posiciones
@@ -33,6 +34,8 @@ int main() {
     int digits[DIGITS_SIZE] = {0};
 
     test_ind_bin2Bcd(num, digits, DIGITS_SIZE);
+    printf("----------\n");
+    test_ind_bin2Bcd(num2, digits, DIGITS_SIZE);
     test_bin2Bcd(nums, NUMS_SIZE);
 
     return 0;
@@ -41,6 +44,10 @@ int main() {
 void bin2Bcd(int num, int *const  digits, const int len_digits) {
     int i;
     int j;
+
+    for (i=0; i < len_digits; i++) {
+        digits[i] = 0;
+    }
 
     for (j=0; j < len_digits; j++) {
         for (i=0; num >= DIVISOR[j]; i=i+1) {
@@ -64,7 +71,7 @@ void test_bin2Bcd(int const *const nums, const int nums_size) {
     for (int i=0; i < nums_size; i++) {
         bin2Bcd(nums[i], digits, DIGITS_SIZE);
 
-        printf("Numero original: %d\n\n", nums[i]);
+        fprintf(myFile, "Numero original: %d\n\n", nums[i]);
         for (int i = 0; i < DIGITS_SIZE; i++) {
             fprintf(myFile, "Digito %d post binario a bcd: %X\n", i+1, digits[i]);
         }

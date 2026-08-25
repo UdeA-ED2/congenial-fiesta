@@ -1,14 +1,14 @@
 CC = gcc
-TARGET = bin/algorithm
+TARGET = out/algorithm
 
 SRCS = algorithm.c
 OBJS = obj/algorithm.o
 
 # Default
-algorithm: $(TARGET)
+algorithm: $(TARGET);
 
 $(TARGET): $(OBJS)
-	@mkdir -p bin/
+	@mkdir -p out/
 	$(CC) $(OBJS) -o $(TARGET)
 
 obj/%.o: ./%.c
@@ -16,4 +16,4 @@ obj/%.o: ./%.c
 	$(CC) -c $< -o $@
 
 clean:
-	rm -rf bin/ obj/
+	rm -rf out/ obj/
