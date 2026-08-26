@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#define NUMS_SIZE 12
-#define DIGITS_SIZE 10
+#define NUMS_SIZE 21
+#define DIGITS_SIZE 11
 
 void bin2Bcd(int num, int *const digits, const int len_digits);
 void test_ind_bin2Bcd(const int num, int *const digits, const int digits_size);
@@ -19,18 +19,40 @@ const int DIVISOR[10] = {
     1,
 };
 
+const int nums[NUMS_SIZE] = {
+    0,
+    4,
+    12,
+    548,
+    1589,
+    23741,
+    64279,
+    213400,
+    2396205,
+    57192836,
+    912348577,
+    1285633993,
+    -1,
+    -31,
+    -343,
+    -1784,
+    -45795,
+    -123456,
+    -3458678,
+    -23134529,
+    -2147483648
+};
+
 int main() {
     int num = 548;
-    int num2 = 372;
+    int num2 = -372;
 
     // Hay al menos un numero que termina con cada digito (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
     // Contienen digitos que se repiten en diferentes posiciones
     // Hay numeros que no repiten ningun digito
-    // const int nums_size = 12;
-    const int nums[NUMS_SIZE] = {0, 4, 12, 548, 1589, 23741, 64279, 213400, 2396205, 57192836, 912348577, 1285633993};
+    // Se incluyeron numeros negativos
+    // No estoy seguro como comprobar sin las versiones sin signo de los branch, pero algo se hace
 
-    // const int digits_size = 10;
-    // int digits[len_digits] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int digits[DIGITS_SIZE] = {0};
 
     test_ind_bin2Bcd(num, digits, DIGITS_SIZE);
@@ -49,10 +71,16 @@ void bin2Bcd(int num, int *const  digits, const int len_digits) {
         digits[i] = 0;
     }
 
-    for (j=0; j < len_digits; j++) {
-        for (i=0; num >= DIVISOR[j]; i=i+1) {
+    digits[10] = num & 0x80000000;
+    unsigned int numPositive = (unsigned int)num;
+    if (digits[10] != 0) {
+        numPositive = -numPositive; // sub numPositive, zero, num
+    }
+
+    for (j=0; j < len_digits -1; j++) {
+        while (numPositive >= DIVISOR[j]) {
             digits[j] += 1;
-            num -= DIVISOR[j];
+            numPositive -= DIVISOR[j];
         }
     }
 }
@@ -72,8 +100,8 @@ void test_bin2Bcd(int const *const nums, const int nums_size) {
         bin2Bcd(nums[i], digits, DIGITS_SIZE);
 
         fprintf(myFile, "Numero original: %d\n\n", nums[i]);
-        for (int i = 0; i < DIGITS_SIZE; i++) {
-            fprintf(myFile, "Digito %d post binario a bcd: %X\n", i+1, digits[i]);
+        for (int j = 0; j < DIGITS_SIZE; j++) {
+            fprintf(myFile, "Digito %d post binario a bcd: %X\n", j+1, digits[j]);
         }
         fprintf(myFile, "--------------------\n");
     }
