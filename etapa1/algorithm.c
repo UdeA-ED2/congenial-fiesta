@@ -65,22 +65,27 @@ int main() {
 
 void bin2Bcd(int num, int *const  digits, const int len_digits) {
     int i;
-    int j;
 
     for (i=0; i < len_digits; i++) {
         digits[i] = 0;
     }
 
-    digits[10] = num & 0x80000000;
+    digits[0] = num & 0x80000000;
     unsigned int numPositive = (unsigned int)num;
     if (digits[10] != 0) {
         numPositive = -numPositive; // sub numPositive, zero, num
     }
+    /*
+    if (num < 0) {
+        numPositive = -numPositive;
+        digits[0] = 1;
+    }
+    */
 
-    for (j=0; j < len_digits -1; j++) {
-        while (numPositive >= DIVISOR[j]) {
-            digits[j] += 1;
-            numPositive -= DIVISOR[j];
+    for (i=1; i < len_digits; i++) {
+        while (numPositive >= DIVISOR[i]) {
+            digits[i] += 1;
+            numPositive -= DIVISOR[i];
         }
     }
 }
