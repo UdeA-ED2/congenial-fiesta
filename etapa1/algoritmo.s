@@ -2,31 +2,38 @@
 DIVISOR:
     .word 1000000000, 100000000, 10000000, 1000000, 100000
     .word 10000, 1000, 100, 10, 1
+NUMS:
+    .word 0, 4, 12, 548, 1589, 23741, 64279, 213400, 2396205
+    .word 57192836, 912348577, 1285633993, -1, -31, -343, -1784
+    .word -45795, -123456, -3458678, -23134529, -2147483648
 
 .text
-.global main
+.global _start
 
 # This file is just to rewrite everything in algorithm.c
 # Obviously using the RV32I instructions available in the processor
-main:
-    addi s0, zero, 548
-    li s1, -372
-    
+_start:
+    lui sp, 0x10000     # sp = 0x10000000
     addi sp, sp, -44    # Allocation for digits[11]
     add s2, zero, sp    # digits pointer
     addi s3, zero, 11   # digits length
+    addi s4, zero, 21   # nums size
     
+    lui s0, %hi(NUMS)
+    addi s0, s0, %lo(NUMS)
+    # la s0, NUMS
 
+    add t3, zero, zero  # Loop index main
     # Function calls
-    add a0, s2, zero
-    add a1, s0, zero
-    add a2, s3, zero
-    jal ra, bin2Bcd
-    # --- SEPARATION --- #
-    add a0, s2, zero
-    add a1, s1, zero
-    add a2, s3, zero
-    jal ra, bin2Bcd
+    1:
+        lw s1, 0(s0)
+        add a0, s2, zero
+        add a1, s1, zero
+        add a2, s3, zero
+        jal ra, bin2Bcd
+        addi t3, t3, 1
+        addi s0, s0, 4
+        blt t3, s4, 1b
 
     add t0, zero, zero  # Useless instruction for simulation
 
