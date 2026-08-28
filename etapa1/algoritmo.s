@@ -17,12 +17,18 @@ main:
     addi s3, zero, 11   # digits length
     
 
-    # Function call
+    # Function calls
     add a0, s2, zero
-    addi a1, zero, 548
+    add a1, s0, zero
     add a2, s3, zero
-    # addi a1, zero, 0xE8C
     jal ra, bin2Bcd
+    # --- SEPARATION --- #
+    add a0, s2, zero
+    add a1, s1, zero
+    add a2, s3, zero
+    jal ra, bin2Bcd
+
+    add t0, zero, zero  # Useless instruction for simulation
 
     addi sp, sp, 44     # Free memory
     jal zero, done
@@ -65,7 +71,12 @@ bin2Bcd:
         add t1, zero, zero
         lw t2, 0(a4)
     5:
-        bltu a1, t2, 4f
+        # Bit Magic (Makes negative numbers be under positive ones)
+        xor t5, a1, t4  # t5 = num ^ sign_bit
+        xor t6, t2, t4  # t6 = divisor ^ sign_bit
+
+        # bltu a1, t2, 4f # if num < divisor, jump, but using unsigned instruction
+        blt t5, t6, 4f  # if num < divisor (unsigned), jump
         addi t1, t1, 1
         sub a1, a1, t2
         j 5b            # j 5b = jal zero, 5b
