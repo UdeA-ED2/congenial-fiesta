@@ -54,7 +54,7 @@ _start:
     lui s7, %hi(TEST_RESULT)      # test_result pointer high
     addi s7, s7, %lo(TEST_RESULT) # test_result pointer low
 
-    add t3, zero, zero          # Loop index main
+    add s5, zero, zero          # Loop index main
     # Function calls
     1:
         lw s1, 0(s0)
@@ -81,9 +81,9 @@ _start:
 
         addi s7, s7, 4
 
-        addi t3, t3, 1
+        addi s5, s5, 1
         addi s0, s0, 4
-        blt t3, s4, 1b
+        blt s5, s4, 1b
 
     jal zero, done
 
@@ -100,11 +100,8 @@ set_error:
 bin2Bcd:
     # t0: Loop index i
     # t1: first for the sign, then the digit
-    # s8: DIVISOR pointer
+    # t3: DIVISOR pointer
     # t2: DIVISOR[i]
-    addi sp, sp, -4
-    sw s8, 0(sp)
-
     add t0, zero, zero # i = 0
 
     # First Loop
@@ -125,14 +122,14 @@ bin2Bcd:
     2:
         addi a0, a0, 4  # Move to digits[1]
         addi t0, zero, 1    # i = 1
-        lui s8, %hi(DIVISOR)
-        addi s8, s8, %lo(DIVISOR)
+        lui t3, %hi(DIVISOR)
+        addi t3, t3, %lo(DIVISOR)
         lui t4, 0x80000
 
     3:
         bge t0, a2, return_bin2Bcd  # from i = 1 until 11
         add t1, zero, zero
-        lw t2, 0(s8)
+        lw t2, 0(t3)
     5:
         # Bit Magic (Makes negative numbers be under positive ones)
         xor t5, a1, t4  # t5 = num ^ sign_bit
@@ -147,11 +144,8 @@ bin2Bcd:
         sw t1, 0(a0)    # digits[i] = t1
         addi t0, t0, 1  # i += 1
         addi a0, a0, 4  # Match i in digits[i]
-        addi s8, s8, 4  # Next divisor
+        addi t3, t3, 4  # Next divisor
         j 3b
-
-    lw s8, 0(sp)
-    addi sp, sp, 4
 
 return_bin2Bcd:
     jr ra
