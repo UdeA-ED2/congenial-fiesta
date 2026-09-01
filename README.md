@@ -2,7 +2,7 @@
 
 ## Integrantes:
 - Juan Sebastian Mejia Ortiz
-- Lorena Zapata
+- Lorena Zapata Berrio
 
 El proyecto para este semestre se trata de crear un procesador que utiliza la arquitectura
 RISC-V, aprendiendo sobre ensamblador, la arquitectura y el uso y comportamiento de la memoria
@@ -29,3 +29,13 @@ Complemento a Dos a BCD.
 - Lectura de teclado, escritura en LCD
 
 - Entrega final: Integración
+
+## Aprendizaje Esperado del Curso
+
+- Lenguaje Ensamblador y utilizacion estandar en la industria
+
+- Diseño de Hardware, por medio de SystemVerilog
+
+- Implementación en FPGA para observar comportamiento del circuito en la practica
+
+- Capacidad de crear varios modulos funcionales por separado para finalmente juntarlos en un gran proyecto (Divide y venceras)
