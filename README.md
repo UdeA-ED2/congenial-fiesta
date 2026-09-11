@@ -12,6 +12,8 @@ El proyecto va a ser dividido en 8 etapas, cada una llevando a finalmente la con
 calculadora, que haga uso de numeros de punto flotante, ingreso de datos y visualizacion por
 medio de una FPGA DE10Lite.
 
+El link para las pruebas de la calculadora y las etapas 1 y 2 se encuentran en: https://docs.google.com/spreadsheets/d/1k41HdeZvcGlS3VdQ7BxxF_62DV41-fauxZeZZ3se6Z0/edit?usp=sharing
+
 ## Etapas
 - Banco de pruebas para la calculadora y programa en assembler para convertir números en
 Complemento a Dos a BCD.
