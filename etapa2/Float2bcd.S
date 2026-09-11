@@ -12,19 +12,18 @@ DIVISOR:
 # Posiciones: 0 + 11 + 1 + 5 = 18 palabras
 # Reservamos 20 por margen
 # ============================================================
-bcd_out:        .space 80        # 20 palabras * 4 bytes
+bcd_out:        .space 84        # 21 palabras * 4 bytes
 
 # ============================================================
 # BUFFER TEMPORAL PARA PARTE FRACCIONARIA
 # (la parte entera la escribe bin2Bcd directo en bcd_out)
 # ============================================================
-buf_frac:       .space 80        # 20 palabras
+buf_frac:       .space 84        # 21 palabras
 
 # ============================================================
 # CONSTANTES FLOTANTES (se cargan con lw + fmv.w.x)
 # ============================================================
 const_10:       .float 10.0      # multiplicar fracción por 10
-const_100000:   .float 100000.0  # para 5 decimales (alternativa)
 
 # ============================================================
 # CONSTANTES ENTERAS / CARACTERES
@@ -148,9 +147,6 @@ float2bcd:
 
     # ---------- 5. ESCRIBIR PUNTO ----------
     lw   a1, 4(sp)          # recupero &bcd_out
-    #la   t0, const_punto
-    #lw   t7, 0(t0)
-    #sw   t7, 52(a1) 
     li   t0, 0x2E           # punto decimal (uso t0 en vez de t7)
     sw   t0, 52(a1)        # bcd_out[13] = 0x2E
 
@@ -177,6 +173,9 @@ loop_frac:
     addi    t4, t4, 4       # siguiente posición
     addi    t5, t5, -1      # contador--
     bne     t5, zero, loop_frac
+
+    addi t0, zero, 0xB
+    sw t0, 80(a1)          # bcd_out[20] = 0xB (fin de cadena)
 
     # ---------- 9. EPÍLOGO ----------
     lw   ra, 0(sp)
