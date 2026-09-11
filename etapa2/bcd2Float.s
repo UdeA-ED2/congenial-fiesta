@@ -109,8 +109,12 @@ test_loop:
     li   s3, 0
 
 compare_loop:
-    flw  ft0, 0(s0)          # obtained float
-    flw  ft1, 0(s1)          # expected float
+    lw  t0, 0(s0)            # obtained float
+    fmv.w.x ft0, t0
+    lw  t0, 0(s1)            # expected float
+    fmv.w.x ft1, t0
+
+    # Make sure those are the same
     feq.s t0, ft0, ft1       # t0 = 1 if equal, 0 if different
     xori t0, t0, 1           # invert: 1 -> 0 (OK), 0 -> 1 (ERROR)
     sw   t0, 0(s4)           # store status
@@ -209,7 +213,9 @@ bcd2Float_dot:
     li t0, 0xD
     lw t1, 0(a1)
     bne t1, t0, 1f
-    fsgnjn.s fa0, fa0, fa0  # Turn into a negative
+    fmv.w.x ft0, zero
+    fsub.s fa0, ft0, fa0      # Turn into a negative
+    # fsgnjn.s fa0, fa0, fa0  # Turn into a negative
     # That is the same as: fneg.s rd, rs
     1:
         ret
