@@ -23,7 +23,7 @@ buf_frac:       .space 84        # 21 palabras
 # ============================================================
 # CONSTANTES FLOTANTES (se cargan con lw + fmv.w.x)
 # ============================================================
-const_10:       .float 100000
+const_100:       .float 100000
 
 # ============================================================
 # CONSTANTES ENTERAS / CARACTERES
@@ -58,6 +58,8 @@ fin:
     # t1: first for the sign, then the digit
     # t3: DIVISOR pointer
     # t2: DIVISOR[i]
+    addi sp, sp, -8
+    sw   a0, 0(sp)        # guardo a0 original (uso s1)
     add t0, zero, zero # i = 0
 
     # First Loop
@@ -67,8 +69,9 @@ fin:
         addi t0, t0, 1
         blt t0, a2, 1b
 
+    lw a0, 0(sp)
     add t0, zero, zero
-    addi a0, a0, -44
+    #addi a0, a0, -48
     # addi a0, a0, 0xFD4
 
     bge a1, zero, 2f    # If number is positive, then jump
@@ -104,6 +107,9 @@ fin:
         j 3b
 
 return_bin2Bcd:
+
+    lw   a0, 0(sp)        # restauro a0
+    addi sp, sp, 8        # restauro sp
     jr ra
 
 # ============================================================
@@ -115,7 +121,7 @@ return_bin2Bcd:
 #          [13]=punto, [14..18]=5 decimales
 # ============================================================
 float2bcd:
-    addi sp, sp, -16
+    addi sp, sp, -12
     sw   ra, 0(sp)
     sw   a1, 4(sp)          # guardo &bcd_out
     sw   s0, 8(sp)          # guardo s0 (lo voy a usar)
@@ -162,24 +168,36 @@ float2bcd:
     fsub.s   ft1, fa0, ft0  # ft1 = fracción
 
     # ---------- 7. CARGAR 10e5 ----------
-    la   t0, const_10
+    la   t0, const_100
     lw   t1, 0(t0)
-    fcvt.w.x ft2, t1         # ft2 = 10e5
+    #fcvt.w.x ft2, t1         # ft2 = 10e5
+    #li      t1, 0x47C35000    # 100000.0 en IEEE 754
+    fmv.w.x ft2, t1           # ft2 = 100000.0
+
+    # Multiplicar
+    #fmul.s  ft3, ft1, ft2     # ft3 = fracción * 100000 (ej: 45678.0)
 
     # ---------- 8. 5 DECIMALES ----------
     fmul.s   ft3, ft1, ft2
-    fcvt.x.w t0, ft3
+    #fcvt.x.w t0, ft3
+    fcvt.w.s t6, ft3, rtz     # t6 = 45678 (entero truncado)
+
+    #------Llamar bin2Bcd para la parte fraccionaria------
+    lw   a1, 4(sp)            # recupero &bcd_out
+    addi a0, a1, 56           # a0 = &bcd_out[14]
+    add  a1, zero, t6         # a1 = entero grande
+    addi a2, zero, 5          # a2 = 5 dígitos
     jal  ra, bin2Bcd
 # TODO: No se como hacer para que quede numero bcd bien puesto, toca hacele eso y ya
-
+    lw   a1, 4(sp)   
     addi t0, zero, 0xB
     sw t0, 80(a1)          # bcd_out[20] = 0xB (fin de cadena)
     j float2bcd_fin
     # ---------- 9. EPÍLOGO ----------
+    #lw   a1, 4(sp)  
     lw   ra, 0(sp)
     lw   s0, 8(sp)
-    addi sp, sp, 16
+    addi sp, sp, 12
     jr   ra
 
 exp_menor:
-    
