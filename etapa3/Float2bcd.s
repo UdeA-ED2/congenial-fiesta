@@ -83,9 +83,21 @@ fin:
         addi t0, zero, 1    # i = 1
         lui t3, %hi(DIVISOR)
         addi t3, t3, %lo(DIVISOR)
+
+        addi t6, zero, 5
+        beq a2, t6, empezar_decimal
+        j continuar_divisor
+
+    empezar_decimal:
+        addi t3, t3, 20
+        addi a2, zero, 1
+
+
+    continuar_divisor:
         lui t4, 0x80000
 
     3:
+        addi t6, zero, 6
         bge t0, a2, return_bin2Bcd  # from i = 1 until 11
         add t1, zero, zero
         lw t2, 0(t3)
@@ -192,12 +204,10 @@ float2bcd:
     lw   a1, 4(sp)   
     addi t0, zero, 0xB
     sw t0, 80(a1)          # bcd_out[20] = 0xB (fin de cadena)
-    j float2bcd_fin
+    #j float2bcd_fin
     # ---------- 9. EPÍLOGO ----------
     #lw   a1, 4(sp)  
     lw   ra, 0(sp)
     lw   s0, 8(sp)
     addi sp, sp, 12
     jr   ra
-
-exp_menor:
