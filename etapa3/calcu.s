@@ -30,6 +30,7 @@ main:
     la   t0, buffer_out
     sw   zero, 0(t0)
 
+
 # =============================================================================
 # Loop principal
 # =============================================================================
@@ -53,6 +54,8 @@ read:
     beq  t0, t1, do_mostrar_out
     addi t1, zero, 0x63          # 'c'
     beq  t0, t1, do_clear
+    addi t1, zero, 0x74          # 't' = toggle modo
+    beq  t0, t1, do_toggle_mode
 
     sw   t0, 0(s1)
     addi s1, s1, 4
@@ -89,11 +92,90 @@ do_clear:
     jal  WriteUART
     j    read
 
+do_toggle_mode:
+    la   t0, test_mode
+    lw   t1, 0(t0)
+    xori t1, t1, 1
+    sw   t1, 0(t0)
+
+    la   t0, test_index
+    sw   zero, 0(t0)
+
+    addi a0, zero, 0x0D
+    jal  WriteUART
+    addi a0, zero, 0x0A
+    jal  WriteUART
+    li   a0, 'm'
+    jal  WriteUART
+    li   a0, 'o'
+    jal  WriteUART
+    li   a0, 'd'
+    jal  WriteUART
+    li   a0, 'o'
+    jal  WriteUART
+    li   a0, '='
+    jal  WriteUART
+
+    la   t0, test_mode
+    lw   t1, 0(t0)
+    beq  t1, zero, modo_manual_msg
+    li   a0, '1'
+    jal  WriteUART
+    j    modo_msg_done
+modo_manual_msg:
+    li   a0, '0'
+    jal  WriteUART
+modo_msg_done:
+    addi a0, zero, 0x0D
+    jal  WriteUART
+    addi a0, zero, 0x0A
+    jal  WriteUART
+    j    read
+
+#pruebas:
+load_test:
+    la   t0, buffer_in
+
+load_test_loop:
+    lbu  t1, 0(a0)
+    beq  t1, zero, load_test_done
+
+    sw   t1, 0(t0)
+
+    addi a0, a0, 1
+    addi t0, t0, 4
+    j    load_test_loop
+
+load_test_done:
+    sw   zero, 0(t0)
+    jr   ra    
+
 # =============================================================================
 # '=' CALCULAR
 # =============================================================================
 do_calcular:
+
+# ¿Modo manual o auto?
+    la   t0, test_mode
+    lw   t0, 0(t0)
+    beq  t0, zero, do_calcular_manual
+
+    #Modo auto:
     sw   zero, 0(s1)
+
+    la   t0, test_index
+    lw   t1, 0(t0)
+
+    la   t2, test_list
+
+    add  t3, t1, t1
+    add  t3, t3, t3
+
+    add  t2, t2, t3
+    lw   a0, 0(t2)
+
+    jal  load_test
+
     la   a0, buffer_in
     lw   t0, 0(a0)
     beq  t0, zero, calc_fin
@@ -141,6 +223,57 @@ do_calcular:
 
     j    calc_fin 
 
+do_calcular_manual:
+
+    sw   zero, 0(s1)  
+    la   a0, buffer_in
+    lw   t0, 0(a0)
+    beq  t0, zero, calc_fin
+
+    la   t0, parse_status
+    sw   zero, 0(t0)   
+
+    jal  parse_expr              # fa0 = resultado (float)
+
+    la   t0, parse_status
+    lw   t1, 0(t0)
+
+    li   t2, 1
+    beq  t1, t2, calc_inf
+
+    li   t2, 2
+    beq  t1, t2, calc_error
+
+    # float -> BCD
+    la   a1, bcd_out
+    jal  float2Bcd
+
+    # BCD -> float (round-trip)
+    la   a1, bcd_out
+    jal  bcd2Float               # fa0 = float leído del BCD
+    la   t0, last_float
+    fmv.x.w t1, fa0
+    sw   t1, 0(t0)
+
+    # BCD -> ASCII
+    la   a0, bcd_out
+    la   a1, buffer_out
+    jal  bcd2Ascii
+
+    addi a0, zero, 0x0D
+    jal  WriteUART
+    addi a0, zero, 0x0A
+    jal  WriteUART
+    la   a0, buffer_out
+    jal  PrintBuffer
+    addi a0, zero, 0x0D
+    jal  WriteUART
+    addi a0, zero, 0x0A
+    jal  WriteUART
+
+    j    calc_fin 
+
+
 calc_inf:
     li   a0, 0x0D
     jal  WriteUART
@@ -177,9 +310,32 @@ calc_error:
 
 
 calc_fin:
+    la   t0, test_mode
+    lw   t0, 0(t0)
+    beq  t0, zero, calc_fin_manual
+
+    # --- AUTO: siguiente prueba ---
+    la   t0, test_index
+    lw   t1, 0(t0)
+    addi t1, t1, 1
+    li   t2, 40
+    bge  t1, t2, tests_done
+    sw   t1, 0(t0)
     add  s1, zero, s0
     sw   zero, 0(s0)
     j    read
+
+calc_fin_manual:
+    add  s1, zero, s0
+    sw   zero, 0(s0)
+    j    read
+
+tests_done:
+    sw   zero, 0(t0)
+    add  s1, zero, s0
+    sw   zero, 0(s0)
+    j    read
+
 
 do_mostrar_out:
     addi a0, zero, 0x0D
@@ -849,3 +1005,65 @@ DIVISOR:
 
 const_100:       .float 100000
 const_max: .float 2147483647.0
+
+#Sumas
+test1:  .asciz "2147483647+0="
+test2:  .asciz "2000000000+147483647="
+test3:  .asciz "2000000000+147483648="
+test4:  .asciz "-2000000000+-147483647="
+test5:  .asciz "-2000000000+-147483648="
+test6:  .asciz "8726309.87+348274.1726="
+test7:  .asciz "73000.87163+2839.38487654="
+test8:  .asciz "123.45+-67.89="
+test9:  .asciz "0.8307526364+0.007823="
+test10: .asciz "0.0000037278+67.000000765="
+
+#Restas
+test11: .asciz "2147483647-1="
+test12: .asciz "1-2147483647="
+test13: .asciz "-2147483647--1="
+test14: .asciz "-2000000000-147483647="
+test15: .asciz "2000000000--147483647="
+test16: .asciz "8726309.87-348274.1726="
+test17: .asciz "73000.87163--2839.38487654="
+test18: .asciz "-876.2183746473-764.27="
+test19: .asciz "0.8307526364-0.007823="
+test20: .asciz "0.0000037278-67.000000765="
+
+#Multiplicaciones
+test21: .asciz "46340*46340="
+test22: .asciz "-46340*46340="
+test23: .asciz "-46340*-46340="
+test24: .asciz "20000*100000="
+test25: .asciz "2147.483647*1000="
+test26: .asciz "872.63*-348.274="
+test27: .asciz "73000.87163*0.001="
+test28: .asciz "-876.21837*0.76427="
+test29: .asciz "0.8307526364*0.007823="
+test30: .asciz "2000000000*2="
+
+#Divisiones
+test31: .asciz "2147483647/1="
+test32: .asciz "-2147483647/1="
+test33: .asciz "2147483647/-1="
+test34: .asciz "-2147483647/-1="
+test35: .asciz "2000000000/1000="
+test36: .asciz "8726309.87/348274.1726="
+test37: .asciz "73000.87163/-2839.38487654="
+test38: .asciz "0.8307526364/0.007823="
+test39: .asciz "0.0000037278/67.000000765="
+test40: .asciz "1/100000="
+
+.align 2
+test_list:
+    .word test1, test2, test3, test4, test5
+    .word test6, test7, test8, test9, test10
+    .word test11, test12, test13, test14, test15
+    .word test16, test17, test18, test19, test20
+    .word test21, test22, test23, test24, test25
+    .word test26, test27, test28, test29, test30
+    .word test31, test32, test33, test34, test35
+    .word test36, test37, test38, test39, test40
+
+test_index:    .word 0    #Contador pruebas
+test_mode:     .word 1    #cambiar modo de pruebas (1 = auto, 0 = manual)
