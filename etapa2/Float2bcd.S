@@ -23,7 +23,7 @@ buf_frac:       .space 84        # 21 palabras
 # ============================================================
 # CONSTANTES FLOTANTES (se cargan con lw + fmv.w.x)
 # ============================================================
-const_10:       .float 10.0      # multiplicar fracción por 10
+const_100:       .float 100000
 
 # ============================================================
 # CONSTANTES ENTERAS / CARACTERES
@@ -58,6 +58,8 @@ fin:
     # t1: first for the sign, then the digit
     # t3: DIVISOR pointer
     # t2: DIVISOR[i]
+    addi sp, sp, -8
+    sw   a0, 0(sp)        # guardo a0 original (uso s1)
     add t0, zero, zero # i = 0
 
     # First Loop
@@ -67,22 +69,41 @@ fin:
         addi t0, t0, 1
         blt t0, a2, 1b
 
+    lw a0, 0(sp)
     add t0, zero, zero
-    addi a0, a0, -44
+    #addi a0, a0, -48
     # addi a0, a0, 0xFD4
 
     bge a1, zero, 2f    # If number is positive, then jump
     sub a1, zero, a1    # Turn into positive number
     addi t1, zero, 1    # Sign of num is negative
     sw t1, 0(a0)        # Store a 1 in digits[0]
+
     2:
-        addi a0, a0, 4  # Move to digits[1]
-        addi t0, zero, 1    # i = 1
         lui t3, %hi(DIVISOR)
         addi t3, t3, %lo(DIVISOR)
+
+        addi t6, zero, 5
+        beq a2, t6, empezar_decimal
+
+        # CASO ENTERO
+        addi a0, a0, 4
+        addi t0, zero, 1
+        j continuar_divisor
+
+
+    empezar_decimal:
+        # CASO DECIMAL
+        # a0 ya apunta al primer espacio donde queremos escribir
+        addi t0, zero, 0
+        addi t3, t3, 20
+
+
+    continuar_divisor:
         lui t4, 0x80000
 
     3:
+        #addi t6, zero, 6
         bge t0, a2, return_bin2Bcd  # from i = 1 until 11
         add t1, zero, zero
         lw t2, 0(t3)
@@ -104,6 +125,9 @@ fin:
         j 3b
 
 return_bin2Bcd:
+
+    lw   a0, 0(sp)        # restauro a0
+    addi sp, sp, 8        # restauro sp
     jr ra
 
 # ============================================================
@@ -115,16 +139,16 @@ return_bin2Bcd:
 #          [13]=punto, [14..18]=5 decimales
 # ============================================================
 float2bcd:
-    addi sp, sp, -16
+    addi sp, sp, -12
     sw   ra, 0(sp)
     sw   a1, 4(sp)          # guardo &bcd_out
     sw   s0, 8(sp)          # guardo s0 (lo voy a usar)
 
     # ---------- 1. SIGNO ----------
     fmv.x.w t0, fa0         # t0 = bits crudos del float
-    li   t2, 0xD            # asumimos negativo
-    blt  t0, zero, 1f       # si t0 < 0, salta y deja 0xD
-    li   t2, 0xC            # si llegó aquí, era positivo
+    li   t2, 0x2D           # asumimos negativo
+    blt  t0, zero, 1f       # si t0 < 0, salta y deja 0x2D
+    li   t2, 0x2B           # si llegó aquí, era positivo
 1:
     sw   t2, 0(a1)          # bcd_out[0] = signo
 
@@ -134,51 +158,69 @@ float2bcd:
     and  t0, t0, t1         # borra bit 31
     fmv.w.x fa0, t0         # fa0 = |float|
 
+    # ---------- EXPONENTE ------------------
+    fmv.x.w t0, fa0
+    lui t2, 0x7F800           # mascara para exponente
+    and t0, t2, t0
+    lui t2, 0x3D000
+    # blt t0, t2, exp_menor
+    
     # ---------- 3. PARTE ENTERA ----------
-    fcvt.w.s t3, fa0        # t3 = parte entera truncada
+    fcvt.w.s t3, fa0 ,rtz    # t3 = parte entera truncada
     add  s0, zero, t3       # s0 = parte entera (para usar después)
 
     # ---------- 4. LLAMAR bin2Bcd ----------
     lw   a1, 4(sp)          # recupero &bcd_out
     addi a0, a1, 4          # a0 = &bcd_out[1]
     add  a1, zero, s0       # a1 = entero
-    addi a2, zero, 12       # a2 = 12 dígitos
+    addi a2, zero, 11       # a2 = 11 dígitos
     jal  ra, bin2Bcd
 
     # ---------- 5. ESCRIBIR PUNTO ----------
     lw   a1, 4(sp)          # recupero &bcd_out
     li   t0, 0x2E           # punto decimal (uso t0 en vez de t7)
-    sw   t0, 52(a1)        # bcd_out[13] = 0x2E
+    sw   t0, 48(a1)        # bcd_out[12] = 0x2E
 
     # ---------- 6. CALCULAR FRACCIÓN ----------
     fcvt.s.w ft0, s0        # ft0 = parte_entera como float
     fsub.s   ft1, fa0, ft0  # ft1 = fracción
 
-    # ---------- 7. CARGAR 10.0 ----------
-    la   t0, const_10
+    # ---------- 7. CARGAR 10e5 ----------
+    la   t0, const_100
     lw   t1, 0(t0)
-    fmv.w.x ft2, t1         # ft2 = 10.0
+    #fcvt.w.x ft2, t1         # ft2 = 10e5
+    #li      t1, 0x47C35000    # 100000.0 en IEEE 754
+    fmv.w.x ft2, t1           # ft2 = 100000.0
 
-    # ---------- 8. LOOP 5 DECIMALES ----------
-    addi t4, a1, 56         # &bcd_out[14]
-    addi t5, zero, 5        # contador = 5
+    # Multiplicar
+    #fmul.s  ft3, ft1, ft2     # ft3 = fracción * 100000 (ej: 45678.0)
 
-loop_frac:
-    fmul.s  ft1, ft1, ft2   # frac *= 10
-    #fcvt.w.s t6, ft1        # t6 = dígito (truncado)
-    fcvt.w.s t6, ft1, rtz
-    sw      t6, 0(t4)       # bcd_out[14+i] = dígito
-    fcvt.s.w ft3, t6        # ft3 = dígito como float
-    fsub.s  ft1, ft1, ft3   # frac -= dígito
-    addi    t4, t4, 4       # siguiente posición
-    addi    t5, t5, -1      # contador--
-    bne     t5, zero, loop_frac
+    # ---------- 8. 5 DECIMALES ----------
+    fmul.s   ft3, ft1, ft2
+    #fcvt.x.w t0, ft3
+    fcvt.w.s t6, ft3, rtz     # t6 = 45678 (entero truncado)
 
+    #------Llamar bin2Bcd para la parte fraccionaria------
+    lw   a1, 4(sp)            # recupero &bcd_out
+    addi a0, a1, 52           # a0 = &bcd_out[13]
+    add  a1, zero, t6         # a1 = entero grande
+    addi a2, zero, 5          # a2 = 5 dígitos
+    jal  ra, bin2Bcd
+
+    lw   a1, 4(sp)   
     addi t0, zero, 0xB
     sw t0, 80(a1)          # bcd_out[20] = 0xB (fin de cadena)
-
+    #j float2bcd_fin
     # ---------- 9. EPÍLOGO ----------
+    #lw   a1, 4(sp)  
     lw   ra, 0(sp)
     lw   s0, 8(sp)
-    addi sp, sp, 16
+    addi sp, sp, 12
     jr   ra
+
+exp_menor: 
+    # Si el exponente es menor a 0x3D000, entonces el número es menor a 0.0625
+    # Por lo tanto, la parte entera es 0 y la fracción es el número mismo
+    # Así que podemos saltar directamente a escribir la parte fraccionaria
+    li   s0, 0               # parte entera = 0
+    j    float2bcd_fin

@@ -98,7 +98,19 @@ do_calcular:
     lw   t0, 0(a0)
     beq  t0, zero, calc_fin
 
+    la   t0, parse_status
+    sw   zero, 0(t0)   
+
     jal  parse_expr              # fa0 = resultado (float)
+
+    la   t0, parse_status
+    lw   t1, 0(t0)
+
+    li   t2, 1
+    beq  t1, t2, calc_inf
+
+    li   t2, 2
+    beq  t1, t2, calc_error
 
     # float -> BCD
     la   a1, bcd_out
@@ -126,6 +138,43 @@ do_calcular:
     jal  WriteUART
     addi a0, zero, 0x0A
     jal  WriteUART
+
+    j    calc_fin 
+
+calc_inf:
+    li   a0, 0x0D
+    jal  WriteUART
+    li   a0, 0x0A
+    jal  WriteUART
+
+    li   a0, 'i'
+    jal  WriteUART
+    li   a0, 'n'
+    jal  WriteUART
+    li   a0, 'f'
+    jal  WriteUART
+
+    j    calc_fin
+
+calc_error:
+    li   a0, 0x0D
+    jal  WriteUART
+    li   a0, 0x0A
+    jal  WriteUART
+
+    li   a0, 'e'
+    jal  WriteUART
+    li   a0, 'r'
+    jal  WriteUART
+    li   a0, 'r'
+    jal  WriteUART
+    li   a0, 'o'
+    jal  WriteUART
+    li   a0, 'r'
+    jal  WriteUART
+
+    j    calc_fin
+
 
 calc_fin:
     add  s1, zero, s0
@@ -166,6 +215,11 @@ parse_expr:
     sw   a0, 0(t0)
 
     jal  parse_term
+
+    la   t1, parse_status
+    lw   t1, 0(t1)
+    bne  t1, zero, pe_error
+
     fmv.x.w t0, fa0
     sw   t0, 4(sp)               # acumulador en pila
 
@@ -187,9 +241,27 @@ pe_op_add:
     sw   a0, 0(t1)
 
     jal  parse_term
+
+    la   t1, parse_status
+    lw   t1, 0(t1)
+    bne  t1, zero, pe_error
+
     lw   t0, 4(sp)
     fmv.w.x ft0, t0
     fadd.s  ft0, ft0, fa0
+
+    # Valor absoluto del resultado
+    fmv.x.w t0, ft0
+    lui    t1, 0x80000
+    xor    t0, t0, t1
+    fmv.w.x ft1, t0
+
+    # ¿|resultado| > 2147483647?
+    la     t1, const_max
+    flw    ft2, 0(t1)
+    flt.s  t2, ft2, ft1
+    bne    t2, zero, pe_error
+
     fmv.x.w t0, ft0
     sw   t0, 4(sp)
     j    pe_loop
@@ -201,12 +273,35 @@ pe_op_sub:
     sw   a0, 0(t1)
 
     jal  parse_term
+
+    la   t1, parse_status
+    lw   t1, 0(t1)
+    bne  t1, zero, pe_error
+
     lw   t0, 4(sp)
     fmv.w.x ft0, t0
     fsub.s  ft0, ft0, fa0
+
+    # Valor absoluto del resultado
+    fmv.x.w t0, ft0
+    lui    t1, 0x80000
+    xor    t0, t0, t1
+    fmv.w.x ft1, t0
+
+    # ¿|resultado| > 2147483647?
+    la     t1, const_max
+    flw    ft2, 0(t1)
+    flt.s  t2, ft2, ft1
+    bne    t2, zero, pe_error
+
     fmv.x.w t0, ft0
     sw   t0, 4(sp)
     j    pe_loop
+
+pe_error:
+    lw   ra, 0(sp)
+    addi sp, sp, 8
+    jr   ra
 
 pe_end:
     lw   t0, 4(sp)
@@ -223,6 +318,11 @@ parse_term:
     sw   ra, 0(sp)
 
     jal  parse_num
+
+    la   t1, parse_status
+    lw   t1, 0(t1)
+    bne  t1, zero, pt_error
+
     fmv.x.w t0, fa0
     sw   t0, 4(sp)
 
@@ -247,6 +347,20 @@ pt_op_mul:
     lw   t0, 4(sp)
     fmv.w.x ft0, t0
     fmul.s  ft0, ft0, fa0
+
+    # Obtener valor absoluto de ft0
+    fmv.x.w t0, ft0
+    lui   t1, 0x80000
+    xor   t0, t0, t1
+    fmv.w.x ft1, t0
+
+    # ft1 > 2147483647.0 ?
+    la    t1, const_max
+    flw   ft2, 0(t1)
+    flt.s t2, ft2, ft1
+    bne   t2, zero, pt_error
+
+    # Guardar resultado
     fmv.x.w t0, ft0
     sw   t0, 4(sp)
     j    pt_loop
@@ -258,12 +372,49 @@ pt_op_div:
     sw   a0, 0(t1)
 
     jal  parse_num
+
+    # ¿El divisor ya tenía error?
+    la   t1, parse_status
+    lw   t1, 0(t1)
+    bne  t1, zero, pt_error
+
+    # ¿División entre cero?
+    fmv.x.w t1, fa0
+    beq   t1, zero, pt_div_zero
+
     lw   t0, 4(sp)
     fmv.w.x ft0, t0
     fdiv.s  ft0, ft0, fa0
+
+    # Obtener valor absoluto del resultado
+    fmv.x.w t0, ft0
+    lui    t1, 0x80000
+    xor    t0, t0, t1
+    fmv.w.x ft1, t0
+
+    # ¿|resultado| > 2147483647?
+    la     t1, const_max
+    flw    ft2, 0(t1)
+    flt.s  t2, ft2, ft1
+    bne    t2, zero, pt_error
+
     fmv.x.w t0, ft0
     sw   t0, 4(sp)
     j    pt_loop
+
+pt_error:
+    lw   ra, 0(sp)
+    addi sp, sp, 8
+    jr   ra
+
+pt_div_zero:
+    li   t1, 2
+    la   t0, parse_status
+    sw   t1, 0(t0)
+
+    lw   ra, 0(sp)
+    addi sp, sp, 8
+    jr   ra
 
 pt_end:
     lw   t0, 4(sp)
@@ -302,14 +453,42 @@ pn_int_loop:
     blt  t1, t2, pn_int_done
     li   t2, 57
     blt  t2, t1, pn_int_done
+
+    # t2 = dígito actual (0..9)
+    addi t2, t1, -48
+
+    # Verificar si t4 * 10 + dígito > 2147483647
+    li   t5, 214748364
+    blt  t5, t4, pn_overflow
+
+    bne  t5, t4, pn_int_build
+
+    # t4 == 214748364
+    # Solo se permite un último dígito <= 7
+    li   t5, 7
+    blt  t5, t2, pn_overflow
+
+pn_int_build:
+    # t4 = t4 * 10
     add  t5, t4, t4
     add  t6, t5, t5
     add  t6, t6, t6
     add  t4, t6, t5
-    addi t2, t1, -48
+
+    # t4 = t4 + dígito
     add  t4, t4, t2
+
     addi a0, a0, 4
     j    pn_int_loop
+
+pn_overflow:
+    li   t5, 1
+    la   t6, parse_status
+    sw   t5, 0(t6)
+
+    jr   ra
+
+
 pn_int_done:
     fcvt.s.w fa0, t4
 
@@ -655,13 +834,18 @@ buffer_in:      .space 1024
 buffer_out:     .space 1024
 bcd_out:        .space 84
 parse_ptr:      .word 0
+parse_status:    .word 0
 last_float:     .word 0
 MASK_DATO:      .word 0x8000
 ReadAddrUART:   .word 0xff201000
 WriteAddrUART:  .word 0xff201000
+
+msg_inf:  .word 105, 110, 102, 0          
+msg_error:  .word 101, 114, 114, 111, 114, 0
 
 DIVISOR:
     .word 1000000000, 100000000, 10000000, 1000000, 100000
     .word 10000, 1000, 100, 10, 1
 
 const_100:       .float 100000
+const_max: .float 2147483647.0
