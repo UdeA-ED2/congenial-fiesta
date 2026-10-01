@@ -5,15 +5,10 @@ module controller(input  logic [6:0] op,
                   output logic [1:0] ResultSrc,
                   output logic       MemWrite,
                   output logic [1:0] PCSrc,
-                  output logic       ALUSrc,
-                  output logic       RegWrite, Jump,
-                  output logic [2:0] ImmSrc,
-                  output logic [2:0] ALUControl);
-
-                  output logic [1:0] SrcASel,
                   output logic       ALUSrc, RegWrite, Jump, Jalr,
-                  output logic [2:0] ALUControl);
-
+                  output logic [2:0] ImmSrc,
+                  output logic [2:0] ALUControl,
+                  output logic [1:0] SrcASel);
   logic [1:0] ALUOp;
   logic       Branch;
   logic       BranchCond;

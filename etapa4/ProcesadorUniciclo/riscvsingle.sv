@@ -11,8 +11,8 @@ module riscvsingle(input  logic        clk, reset,
 
   controller c(Instr[6:0], Instr[14:12], Instr[31:25], Zero,
                ResultSrc, MemWrite, PCSrc,
-               ALUSrc, RegWrite, Jump,
-               ImmSrc, ALUControl);
+               ALUSrc, RegWrite, Jump, Jalr,
+               ImmSrc, ALUControl, SrcASel);
   datapath dp(clk, reset, ResultSrc, PCSrc,
               ALUSrc, RegWrite,
               ImmSrc, ALUControl, SrcASel,

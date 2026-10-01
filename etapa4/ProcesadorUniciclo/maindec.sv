@@ -7,7 +7,7 @@ module maindec(input  logic [6:0] op,
                output logic [2:0] ImmSrc,
                output logic [1:0] ALUOp);
 
-  logic [10:0] controls;
+  logic [14:0] controls;
 
   assign {RegWrite, ImmSrc, ALUSrc, MemWrite,
           ResultSrc, Branch, ALUOp, Jump, Jalr, SrcASel} = controls;
