@@ -1,6 +1,5 @@
 # =========================================================
 #  test_instrucciones.s
-#  Pruebas RV32I en RARS
 #
 #  Instrucciones ACTIVAS:
 #    add, addi, sub, and, or, andi, ori,
