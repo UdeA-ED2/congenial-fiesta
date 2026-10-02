@@ -4,17 +4,13 @@
 #
 #  Instrucciones ACTIVAS:
 #    add, addi, sub, and, or, andi, ori,
-#    slt, slti, lw, sw, jal, beq, bne,
+#    slt, slti, lw, sw, jal, beq, bne, blt, bge,
 #    jalr, xor, xori, auipc, lui
-#
-#  Instrucciones DESACTIVADAS (comentadas):
-#    blt, bge
 # =========================================================
 
 .data
-    resultados: .space 96          # 24 words (usamos 21)
+    resultados: .space 96          # 24 words
     scratch:    .word 0            # variable auxiliar para lw/sw
-    msj_fin:    .string "\nFin de las pruebas.\n"
 
 .text
 .globl main
@@ -140,26 +136,26 @@ bne_ok:
     sw    t2, 52(s0)               # = 0 si BNE salto bien
 
     # -----------------------------------------------------
-    #  [14] BLT (DESACTIVADO)
+    #  [14] BLT
     # -----------------------------------------------------
-    # li    t0, -1
-    # li    t1,  1
-    # li    t2, 0
-    # blt   t0, t1, blt_ok
-    # li    t2, -1
-    # blt_ok:
-    # sw    t2, 56(s0)             # = 0 si BLT salto bien
+    li    t0, -1
+    li    t1,  1
+    li    t2, 8
+    blt   t0, t1, blt_ok
+    li    t2, -1
+    blt_ok:
+    sw    t2, 56(s0)             # = 0 si BLT salto bien
 
     # -----------------------------------------------------
-    #  [15] BGE (DESACTIVADO)
+    #  [15] BGE
     # -----------------------------------------------------
-    # li    t0, 5
-    # li    t1, 5
-    # li    t2, 0
-    # bge   t0, t1, bge_ok
-    # li    t2, -1
-    # bge_ok:
-    # sw    t2, 60(s0)             # = 0 si BGE salto bien
+    li    t0, 5
+    li    t1, 5
+    li    t2, 14
+    bge   t0, t1, bge_ok
+    li    t2, -1
+    bge_ok:
+    sw    t2, 60(s0)             # = 0 si BGE salto bien
 
     # -----------------------------------------------------
     #  [16] JALR -> salto indirecto via registro
@@ -204,12 +200,10 @@ continuar:
     # -----------------------------------------------------
     # Fin
     # -----------------------------------------------------
-    li    a0, 4
-    la    a1, msj_fin
-    ecall
+    j done
 
-    li    a0, 10
-    ecall
+done:
+    j done
 
 # =========================================================
 # Subrutina llamada por JAL

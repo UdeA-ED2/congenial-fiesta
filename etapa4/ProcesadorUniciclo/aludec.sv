@@ -9,8 +9,12 @@ module aludec(input  logic       opb5,
 
   always_comb
     case(ALUOp)
-      2'b00:                ALUControl = 3'b000; // addition
-      2'b01:                ALUControl = 3'b001; // subtraction
+      2'b00:                ALUControl = 3'b000; // addition (lw, sw, lui, jal, jalr, auipc)
+      2'b01:    // Branches
+          case(funct3)
+              3'b100, 3'b101: ALUControl = 3'b101;  // slt (blt, bge)
+              default:        ALUControl = 3'b001;  // subtraction (beq, bne)
+          endcase
       default: case(funct3) // R-type or I-type ALU
                  3'b000:  if (RtypeSub) 
                             ALUControl = 3'b001; // sub

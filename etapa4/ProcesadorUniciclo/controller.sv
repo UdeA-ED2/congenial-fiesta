@@ -13,6 +13,7 @@ module controller(input  logic [6:0] op,
   logic       Branch;
   logic       BranchCond;
   logic       funct7b5;
+
   assign funct7b5 = funct7[5];
 
   maindec md(op, ResultSrc, SrcASel, MemWrite, Branch,
@@ -21,11 +22,17 @@ module controller(input  logic [6:0] op,
 
   assign PCSrc[0] = Branch & BranchCond | Jump;
   assign PCSrc[1] = Jalr;
+
   always_comb begin
-    case(funct3)
-        3'b000: BranchCond  = Zero;  // beq
-        3'b001: BranchCond = ~Zero;  // beq
-        default: BranchCond = 1'bx;
-    endcase
+    BranchCond = 1'b0;
+    if(Branch) begin
+        case(funct3)
+            3'b000: BranchCond  = Zero;  // beq
+            3'b001: BranchCond  = ~Zero; // beq
+            3'b100: BranchCond  = ~Zero; // blt
+            3'b101: BranchCond  = Zero;  // bge
+            default: BranchCond = 1'bx;
+        endcase
+    end
   end
 endmodule
