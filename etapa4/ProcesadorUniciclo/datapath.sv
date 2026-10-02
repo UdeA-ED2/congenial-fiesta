@@ -26,7 +26,7 @@ module datapath(input  logic        clk, reset,
   // register file logic
   regfile     rf(clk, RegWrite, Instr[19:15], Instr[24:20], 
                  Instr[11:7], Result, SrcA_reg, WriteData);
-  extend      ext(Instr, ImmSrc, ImmExt);
+  extend      ext(Instr[31:7], ImmSrc, ImmExt);
 
   // SrcA: 0=rs1, 1=PC, 2=zero
   mux3 #(32) srcamux(SrcA_reg, PC, 0, SrcASel, SrcA);

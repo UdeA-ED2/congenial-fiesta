@@ -21,7 +21,7 @@ module controller(input  logic [6:0] op,
 
   assign PCSrc[0] = Branch & BranchCond | Jump;
   assign PCSrc[1] = Jalr;
-  always_comb
+  always_comb begin
     case(funct3)
         3'b000: BranchCond  = Zero;  // beq
         3'b001: BranchCond = ~Zero;  // beq

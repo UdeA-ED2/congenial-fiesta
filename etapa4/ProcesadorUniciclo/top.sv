@@ -25,3 +25,4 @@ module top(input logic clk, nreset,
 	flopr #(1) resetReg(clk, ~nreset, 1'b1, nSyncReset);
 
 endmodule
+

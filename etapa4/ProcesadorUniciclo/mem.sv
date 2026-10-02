@@ -12,6 +12,7 @@ module mem #(parameter WIDTH=32, DEPTH=1<<10)(
 	logic we_B, led_in, switches_in, memoryMappedDevice;
 	
 	
+    /*
 	altsyncram #(
 		.OPERATION_MODE("BIDIR_DUAL_PORT"),
 		.INIT_FILE("mem.mif"),
@@ -33,6 +34,26 @@ module mem #(parameter WIDTH=32, DEPTH=1<<10)(
 		.data_b(wd),
 		.q_b(rd_B)
 	);
+    */
+    // ---- RAM Verilog pura (reemplaza al altsyncram) ----
+    logic [WIDTH-1:0] RAM [0:DEPTH-1];
+
+    initial begin
+        $readmemh("memory.hex", RAM);
+    end
+
+    // Puerto A: lectura combinacional (instrucciones)
+    assign rd_A = RAM[addr_A];
+
+    // Puerto B: lectura combinacional (datos)
+    assign rd_B = RAM[addr_B];
+
+    // Puerto B: escritura síncrona
+    always_ff @(posedge clk) begin
+        if (we_B)
+            RAM[addr_B] <= wd;
+    end
+    // -----------------------------------------------------
 	
 
 	always_comb begin
