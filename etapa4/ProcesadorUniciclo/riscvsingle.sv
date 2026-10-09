@@ -1,5 +1,5 @@
 module riscvsingle(input  logic        clk, reset,
-                   output logic [31:0] PC,
+                   output logic [31:0] PCNext,
                    input  logic [31:0] Instr,
                    output logic        MemWrite,
                    output logic [31:0] ALUResult, WriteData,
@@ -16,6 +16,6 @@ module riscvsingle(input  logic        clk, reset,
   datapath dp(clk, reset, ResultSrc, PCSrc,
               ALUSrc, RegWrite,
               ImmSrc, ALUControl, SrcASel,
-              Zero, PC, Instr,
+              Zero, PCNext, Instr,
               ALUResult, WriteData, ReadData);
 endmodule

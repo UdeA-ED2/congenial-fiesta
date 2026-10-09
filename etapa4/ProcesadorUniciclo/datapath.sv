@@ -7,12 +7,12 @@ module datapath(input  logic        clk, reset,
                 input  logic [2:0]  ALUControl,
                 input  logic [1:0]  SrcASel,
                 output logic        Zero,
-                output logic [31:0] PC,
+                output logic [31:0] PCNext,
                 input  logic [31:0] Instr,
                 output logic [31:0] ALUResult, WriteData,
                 input  logic [31:0] ReadData);
 
-  logic [31:0] PCNext, PCPlus4, PCTarget;
+  logic [31:0] PC, PCPlus4, PCTarget;
   logic [31:0] ImmExt;
   logic [31:0] SrcA_reg, SrcA, SrcB;
   logic [31:0] Result;

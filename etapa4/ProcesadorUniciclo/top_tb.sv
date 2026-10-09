@@ -38,7 +38,7 @@ module top_tb();
         repeat (N_CYCLES) @(posedge clk);
 
         // Imprimir 
-        $display("PC    = %08h", cpu.rvsingle.PC);
+        // $display("PC    = %08h", cpu.rvsingle.PC);
         // for (int i = 0; i <= TEST_AMOUNT; i++) begin
             // $display("mem[%0d] = %08h", i,
             //     cpu.mem.u_mem.MEMORY.m_mem_data_a[i+RESULTS_WORD]);

@@ -12,7 +12,6 @@ module mem #(parameter WIDTH=32, DEPTH=1<<10)(
 	logic we_B, led_in, switches_in, memoryMappedDevice;
 	
 	
-    /*
 	altsyncram #(
 		.OPERATION_MODE("BIDIR_DUAL_PORT"),
 		.INIT_FILE("mem.mif"),
@@ -34,7 +33,7 @@ module mem #(parameter WIDTH=32, DEPTH=1<<10)(
 		.data_b(wd),
 		.q_b(rd_B)
 	);
-    */
+    /*
     // ---- RAM Verilog pura (reemplaza al altsyncram) ----
     logic [WIDTH-1:0] RAM [0:DEPTH-1];
 
@@ -54,6 +53,7 @@ module mem #(parameter WIDTH=32, DEPTH=1<<10)(
             RAM[addr_B] <= wd;
     end
     // -----------------------------------------------------
+    */
 	
 
 	always_comb begin
