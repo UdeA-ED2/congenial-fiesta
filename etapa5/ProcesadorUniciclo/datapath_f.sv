@@ -25,8 +25,7 @@ module datapath_f(input  logic        clk, reset,
   always_comb begin
       FromFloat = SrcA;
       if(Conv == 2'b01) begin
-          // TODO: Algoritmo conversion float 2 int
-          FromFloat = SrcA;
+          FromFloat = f2i(SrcA);
       end
   end
 
@@ -37,4 +36,43 @@ module datapath_f(input  logic        clk, reset,
           FromIntResult = FromInt;
       end
   end
+
+  function automatic logic [31:0] f2i(input logic [31:0] f);
+      logic        s;
+      logic [7:0]  E;
+      logic [22:0] f;
+      logic [23:0] m;
+      logic [7:0]  e;
+      logic [31:0] result;
+
+      int shift;
+
+      if (E == 255) return 32'h7FFF_FFFF;
+      if (E == 0)   return 0;
+
+      e = E - 127;
+      m = {1'b1, f};
+
+      if (e < 0)    return 0;
+      if (e > 30)   return s ? 32'h8000_0000 : 32'h7FFF_FFFF;
+
+      shift = 23 - e;
+      if (shift <= 0) result = m << (-shift);
+      else result = m >> shift;
+
+      return s ? -result : result;
+  endfunction
+
+  function automatic logic [31:0] i2f(input logic [31:0] x, input logic [2:0] rm);
+      logic        s;
+      logic [7:0]  E;
+      logic [22:0] f;
+      logic [23:0] m;
+      logic [7:0]  e;
+      logic [31:0] mag;
+
+      if (x == 0) return 0;
+      
+      // TODO: Terminar algoritmo, no falta tanto :]
+  endfunction
 endmodule
