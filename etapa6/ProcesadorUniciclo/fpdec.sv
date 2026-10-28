@@ -23,10 +23,10 @@ module fpdec(
         if (is_fp) begin
             // RegWriteF_ResultSrcF_ALUControlF_Conv_RegWrite_ResultSrc
             case (funct5)
-                5'b00000: controls_f = 10'b1_0_000_00_0_00;
-                5'b00001: controls_f = 10'b1_0_001_00_0_00;
-                5'b00010: controls_f = 10'b1_0_010_00_0_00;
-                5'b00011: controls_f = 10'b1_0_011_00_0_00;
+                5'b00000: controls_f = 10'b1_0_000_00_0_00; // fadd.s
+                5'b00001: controls_f = 10'b1_0_001_00_0_00; // fsub.s
+                5'b00010: controls_f = 10'b1_0_010_00_0_00; // fmul.s
+                5'b00011: controls_f = 10'b1_0_011_00_0_00; // fdiv.s
                 5'b11010: controls_f = 10'b1_1_000_10_0_00; // fcvt.s.w
                 5'b11000: controls_f = 10'b0_0_000_01_1_11; // fcvt.w.s
                 5'b11110: controls_f = 10'b1_1_000_00_0_00; // fmv.w.x
