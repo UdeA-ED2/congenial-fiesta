@@ -20,26 +20,45 @@ main:
     # INICIO PRUEBAS
     # -----------------------------------------------------
     li t0, 0x4093c6e7   # 4.61803
-    fmv.w.s ft0, t0
+    fmv.w.x ft0, t0
     li t0, 0x406514e4   # 3.5794
-    fmv.w.s ft1, t0
+    fmv.w.x ft1, t0
 
+    # SUMA
     fadd.s fs0, ft0, ft1
 
     li t0, 0x3f3645a2   # 0.712
-    fmv.w.s ft0, t0
+    fmv.w.x ft0, t0
 
+    # PRODUCTO
     fmul.s fs1, fs0, ft0
 
     li t0, 0x41de9168   # 27.821
-    fmv.w.s ft0, t0
+    fmv.w.x ft0, t0
 
+    # RESTA
     fsub.s fs2, fs1, ft0
 
     li t0, 0xbfbd42c4   # -1.4786
-    fmv.w.s ft0, t0
+    fmv.w.x ft0, t0
 
+    # DIVISION
     fdiv.s fs3, fs2, ft0
+
+    # MOVIMIENTOS
+    # float -> int
+    fmv.x.w t3, fs0
+    # int -> float
+    li t0, 0xBEEF     # 48879 == 0xbeef
+    fmv.w.x fs4, t0
+
+    # CONVERSIONES
+    # int -> float
+    li t0, 1278       # 1278 == 0x4fe
+    fcvt.s.w fs4, t0
+
+    # float -> int
+    fcvt.w.s t4, fs1
 
     # -----------------------------------------------------
     #  FIN PRUEBAS
@@ -80,13 +99,14 @@ done:
     # leds:       .byte 0xFF200000   # puntero LEDS
     # switches:   .byte 0xFF200040   # puntero switches
     esperados:
-        .word 0x00000000            # [0] fadd.s
-        .word 0x00000000            # [1] fsub.s
-        .word 0x00000000            # [2] fmul.s
-        .word 0x00000000            # [3] fdiv.s
-        .word 0x00000000            # [4] fcvt.w.s
-        .word 0x00000000            # [5] fcvt.s.w
-        .word 0x00000000            # [6] fmv.w.s
-        .word 0x00000000            # [7] fmv.s.w
+        .word 0x410328ac            # [0] fadd.s
+        .word 0x40bac52f            # [1] fmul.s
+        .word 0xc1afe01d            # [2] fsub.s
+        .word 0x416de501            # [3] fdiv.s
+        .word 0x410328ac            # [4] fmv.x.w
+        .word 0x0000beef            # [5] fmv.w.x
+        .word 0x449fc000            # [6] fcvt.s.w
+        .word 0x0000000e            # [7] fcvt.w.s
+
 
     resultados: .space 32          # 8 words
