@@ -111,6 +111,8 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to leds[2]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to leds[1]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to leds[0]
 set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
+set_global_assignment -name SYSTEMVERILOG_FILE float2int.sv
+set_global_assignment -name SYSTEMVERILOG_FILE int2float.sv
 set_global_assignment -name SYSTEMVERILOG_FILE f_sum.sv
 set_global_assignment -name SYSTEMVERILOG_FILE tb_f_sum.sv
 set_global_assignment -name SYSTEMVERILOG_FILE f_sub.sv

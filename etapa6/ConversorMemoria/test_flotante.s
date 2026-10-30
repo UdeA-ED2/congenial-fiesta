@@ -5,9 +5,7 @@
 #  		fcvt.s.w, fcvt.w.s, fmv.w.s, fmv.s.w
 #  Finalmente las operaciones que desean realizar son:
 #  a = (0.712*(4.61803 + 3.5794) - 27.821) / -1.4786;
-#  b = (int) a;
-#  c = (float) 9178135;
-#  Ademas mover dos valores que aun no se cuales
+#  Ademas mover y convertir
 # =========================================================
 
 .text
@@ -60,13 +58,15 @@ main:
     # float -> int
     fcvt.w.s t4, fs1
 
+    j done
+
     # -----------------------------------------------------
     #  FIN PRUEBAS
     #  Comprobando resultados y poniendolo en LEDs
     # -----------------------------------------------------
     la    s0, resultados
     la    s1, esperados
-    li    s2, 0                # i (índice)
+    li    s2, 0                # i (indice)
     li    s3, 8                # cantidad tests
     li    s4, 0                # mascara de LEDs
     li    s5, 1                # bit actual

@@ -11,6 +11,7 @@ module datapath_f(input  logic        clk, reset,
   logic [31:0] Result;
   logic [31:0] FromIntResult;
   logic [31:0] ALUResult;
+  logic [31:0] i2f, f2i;
   logic [2:0]  rm;
   
   assign rm = Instr[14:12];
@@ -23,22 +24,28 @@ module datapath_f(input  logic        clk, reset,
   alu_f       alu(SrcA, SrcB, ALUControl, ALUResult);
   mux2 #(32)  resultmux(ALUResult, FromIntResult, ResultSrc, Result);
 
+  float2int float_to_int(SrcA, f2i);
+  int2float int_to_float(FromInt, rm, i2f);
+
   // Conversion
   // Conv: 2'b00: None; 2'b10: Int2Float; 2'b01: Float2Int
   always_comb begin
       FromFloat = SrcA;
       if(Conv == 2'b01) begin
-          FromFloat = f2i(SrcA);
+          // FromFloat = f2i(SrcA);
+          FromFloat = f2i;
       end
   end
 
   always_comb begin
       FromIntResult = FromInt;
       if(Conv == 2'b10) begin
-          FromIntResult = i2f(FromInt, rm);
+          // FromIntResult = i2f(FromInt, rm);
+          FromIntResult = i2f;
       end
   end
 
+  /*
   function automatic logic [31:0] f2i(input logic [31:0] f);
       logic        s;
       logic [7:0]  E;
@@ -96,4 +103,5 @@ module datapath_f(input  logic        clk, reset,
       f = m[22:0];
       return {s, E, f};
   endfunction
+  */
 endmodule
