@@ -17,7 +17,7 @@ module datapath_f(input  logic        clk, reset,
   assign rm = Instr[14:12];
  
   // register file logic
-  regfile     rf(clk, RegWrite, Instr[19:15], Instr[24:20], 
+  regfile_f   rf(clk, RegWrite, Instr[19:15], Instr[24:20], 
                  Instr[11:7], Result, SrcA, SrcB);
 
   // ALU logic
