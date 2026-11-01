@@ -48,6 +48,14 @@ module f_sum (
             result = 32'h7FC00000; // NaN 
         end
 
+        // Ceros
+        else if (exp_a == 0 && exp_b == 0)
+            result = {(sign_a & sign_b), 31'b0};
+        else if (exp_a == 0)
+            result = b;
+        else if (exp_b == 0)
+            result = a;
+
         // Ambos operandos son infinitos
         else if (exp_a == 8'hFF && exp_b == 8'hFF) begin
             if (sign_a != sign_b)
@@ -118,8 +126,12 @@ module f_sum (
             end
 
             // Construir el resultado final
-            if (sig_result == 0) begin
+            if (exp_result >= 8'd255) begin
+                result = {sign_result, 8'hFF, 23'b0};
+            end else if (sig_result == 0) begin
                 result = 32'b0;
+            end else if (sig_result[23] == 1'b0) begin
+                result = {sign_result, 31'b0};
             end else begin
                 result = {sign_result, exp_result, sig_result[22:0]};
             end

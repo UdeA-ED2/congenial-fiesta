@@ -24,7 +24,7 @@ module maindec(input  logic [6:0] op,
       7'b1100111: controls = 15'b1_000_1_0_10_0_00_0_1_00; // jalr
       7'b0110111: controls = 15'b1_100_1_0_00_0_00_0_0_10; // lui (SrcA = zero)
       7'b0010111: controls = 15'b1_100_1_0_00_0_00_0_0_01; // auipc (SrcA = PC)
-      7'b1010011: controls = 15'b0_xxx_0_0_00_0_xx_0_0_00; // Float Operation (fp_dec)
+      7'b1010011: controls = 15'b0_xxx_0_0_00_0_00_0_0_00; // Float Operation (fp_dec)
       default:    controls = 15'bx_xxx_x_x_xx_x_xx_x_x_xx; // non-implemented instruction
     endcase
 endmodule

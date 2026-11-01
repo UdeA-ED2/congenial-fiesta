@@ -23,7 +23,11 @@ module float2int (
         m          = 24'b0;
         shift      = 0;
 
-        if (E > 8'd157) begin
+        if (E == 8'd255 && frac != 23'd0) begin
+            // NaN lleva a INT_MAX
+            result = 32'h7FFF_FFFF;
+        end
+        else if (E > 8'd157) begin
             // exp_real > 30  =>  |x| >= 2^31  =>  saturar
             result = s ? 32'h8000_0000 : 32'h7FFF_FFFF;
         end
