@@ -113,7 +113,7 @@ done:
         .word 0xc1afe01d            # [2] fsub.s
         .word 0x416de501            # [3] fdiv.s
         .word 0x449fc000            # [4] fcvt.s.w
-        .word 0x0000000e            # [5] fcvt.w.s
+        .word 0x00000005            # [5] fcvt.w.s
 
 
     resultados: .space 24          # 8 words
