@@ -23,42 +23,51 @@ main:
     fmv.w.x ft1, t0
 
     # SUMA
-    fadd.s fs0, ft0, ft1
+    fadd.s fs0, ft0, ft1, rtz
 
+    fmv.x.w t5, fs0
+    sw t5, 0(s0)
+
+    # PRODUCTO
     li t0, 0x3f3645a2   # 0.712
     fmv.w.x ft0, t0
 
-    # PRODUCTO
-    fmul.s fs1, fs0, ft0
+    fmul.s fs1, fs0, ft0, rtz
 
+    fmv.x.w t5, fs1
+    sw t5, 4(s0)
+
+    # RESTA
     li t0, 0x41de9168   # 27.821
     fmv.w.x ft0, t0
 
-    # RESTA
-    fsub.s fs2, fs1, ft0
+    fsub.s fs2, fs1, ft0, rtz
 
+    fmv.x.w t5, fs2
+    sw t5, 8(s0)
+
+    # DIVISION
     li t0, 0xbfbd42c4   # -1.4786
     fmv.w.x ft0, t0
 
-    # DIVISION
-    fdiv.s fs3, fs2, ft0
+    fdiv.s fs3, fs2, ft0, rtz
 
-    # MOVIMIENTOS
-    # float -> int
-    fmv.x.w t3, fs0
-    # int -> float
-    li t0, 0xBEEF     # 48879 == 0xbeef
-    fmv.w.x fs4, t0
+    fmv.x.w t5, fs3
+    sw t5, 12(s0)
 
     # CONVERSIONES
     # int -> float
-    li t0, 1278       # 1278 == 0x4fe
-    fcvt.s.w fs4, t0
+    # Entero a flotante
+    li t0, 1278         # 1278 == 0x4fe
+    fcvt.s.w fs4, t0, rtz
+
+    fmv.x.w t5, fs4
+    sw t5, 16(s0)
 
     # float -> int
+    # Flotante a entero
     fcvt.w.s t4, fs1
-
-    j done
+    sw t4, 20(s0)
 
     # -----------------------------------------------------
     #  FIN PRUEBAS
@@ -100,13 +109,11 @@ done:
     # switches:   .byte 0xFF200040   # puntero switches
     esperados:
         .word 0x410328ac            # [0] fadd.s
-        .word 0x40bac52f            # [1] fmul.s
+        .word 0x40bac52e            # [1] fmul.s
         .word 0xc1afe01d            # [2] fsub.s
         .word 0x416de501            # [3] fdiv.s
-        .word 0x410328ac            # [4] fmv.x.w
-        .word 0x0000beef            # [5] fmv.w.x
-        .word 0x449fc000            # [6] fcvt.s.w
-        .word 0x0000000e            # [7] fcvt.w.s
+        .word 0x449fc000            # [4] fcvt.s.w
+        .word 0x0000000e            # [5] fcvt.w.s
 
 
-    resultados: .space 32          # 8 words
+    resultados: .space 24          # 8 words
