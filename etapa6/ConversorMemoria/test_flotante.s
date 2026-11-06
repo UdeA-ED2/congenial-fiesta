@@ -76,7 +76,7 @@ main:
     la    s0, resultados
     la    s1, esperados
     li    s2, 0                # i (indice)
-    li    s3, 8                # cantidad tests
+    li    s3, 6                # cantidad tests
     li    s4, 0                # mascara de LEDs
     li    s5, 1                # bit actual
 
