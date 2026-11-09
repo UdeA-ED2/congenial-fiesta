@@ -2,7 +2,7 @@
 
 module top_tb();
     localparam int CLK_PERIOD = 20;   // periodo del reloj en ns
-    localparam int N_CYCLES   = 500;  // ciclos a dejar correr el CPU
+    localparam int N_CYCLES   = 1000; // ciclos a dejar correr el CPU
 
     logic clk = 0;
     logic nreset = 0;

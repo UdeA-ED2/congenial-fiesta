@@ -116,4 +116,4 @@ done:
         .word 0x00000005            # [5] fcvt.w.s
 
 
-    resultados: .space 24          # 8 words
+    resultados: .space 24          # 6 words
