@@ -47,7 +47,7 @@ module f_mul(input  logic [31:0] a,
     
     // Casos especiales magicos
     if (a_isNaN || b_isNaN)
-      result = {sign_r, 8'hFF, 23'h400000};
+      result = 32'h7fc00000;
     else if ((a_isInf && b_isZero) || (b_isInf && a_isZero))
       result = {sign_r, 8'hFF, 23'h400000};
     else if (a_isInf || b_isInf)

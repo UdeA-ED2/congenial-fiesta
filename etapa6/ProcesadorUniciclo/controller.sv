@@ -25,7 +25,7 @@ module controller(input  logic [6:0] op,
   logic       RegWrite_int;
 
   assign funct7b5 = funct7[5];
-  assign is_fp    = (op == 7'b1000011);
+  assign is_fp    = (op == 7'b1010011);
 
   maindec md(op, ResultSrc_int, SrcASel, MemWrite, Branch,
              ALUSrc, RegWrite_int, Jump, Jalr, ImmSrc, ALUOp);

@@ -34,7 +34,7 @@ module f_div(input  logic [31:0] a,
   
   always_comb begin
     sign_r = sign_a ^ sign_b;
-    man_r = ({man_a, 24'b0}) / man_b;
+    man_r = (exp_b == 0) ? 48'b0 : ({man_a, 24'b0}) / man_b;
     
     // Normalizar cociente y obtener fraccion
     if (man_r[24]) begin
@@ -47,7 +47,7 @@ module f_div(input  logic [31:0] a,
     
     // Casos especiales magicos
     if (a_isNaN || b_isNaN)
-      result = {sign_r, 8'hFF, 23'h400000};
+      result = 32'h7fc00000;
     else if ((a_isInf && b_isInf) || (a_isZero && b_isZero))
       result = {sign_r, 8'hFF, 23'h400000};
     else if (a_isInf)
