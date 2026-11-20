@@ -3,13 +3,17 @@ module mem #(parameter WIDTH=32, DEPTH=1<<10)(
 			input logic [WIDTH-1:0] a1, a2, wd, 
 			output logic [WIDTH-1:0] rd1, rd2, 
 			input logic [9:0] switches, 
-			output logic [9:0] leds);
+			output logic [9:0] leds,
+			input logic [3:0] key,
+			input logic kb_flag,
+			output logic [0:3][159:0] lines);
 	
 	localparam addr_bits = $clog2(DEPTH); 
 	
 	logic [WIDTH-1:0] rd_A, rd_B;
 	logic [addr_bits-1:0] addr_A, addr_B;
 	logic we_B, led_in, switches_in, memoryMappedDevice;
+	logic kb_in, lcd_in;
 	
 	
 	altsyncram #(
@@ -85,5 +89,19 @@ module mem #(parameter WIDTH=32, DEPTH=1<<10)(
 	always_ff @(posedge clk)
 		if (led_in && we2)
 			leds <= wd[9:0];
+			
+	// read memory or Memory mapped Device
+	always_comb
+		if (kb_in)
+			rd2 = {28'b0, key};
+		else
+			rd2 = rd_B;
+			
+	// write to output device
+	// TODO: Que funcione el lcd que no idea como escribir esa memoria
+	always_ff @(posedge clk)
+		if (lcd_in && we2)
+			lines <= wd[9:0];
+	
 	
 endmodule
