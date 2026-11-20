@@ -56,7 +56,7 @@ module lcd2004_driver_tb;
     logic       rs_snap;
     logic [7:0] data_snap;
 
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         en_prev <= En;
         if (En && !en_prev) begin
             rs_snap   <= Rs;
@@ -64,7 +64,7 @@ module lcd2004_driver_tb;
         end else if (En && en_prev) begin
             if (Rs !== rs_snap || data !== data_snap) begin
                 $display("[ERROR] Tiempo %0t ns: Rs o data cambiaron mientras En=1", $time);
-                errors <= errors + 1;
+                errors++;
             end
         end
     end
@@ -123,8 +123,8 @@ module lcd2004_driver_tb;
 
     // Secuencia principal de pruebas
     initial begin
-        $dumpfile("tb_lcd2004_driver.vcd");
-        $dumpvars(0, tb_lcd2004_driver);
+        $dumpfile("lcd2004_driver_tb.vcd");
+        $dumpvars(0, lcd2004_driver_tb);
 
         // Mensajes iniciales (20 caracteres exactos cada uno)
         line1 = "   FPGA LCD 2004    ";
