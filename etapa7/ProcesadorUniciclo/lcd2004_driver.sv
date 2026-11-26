@@ -8,7 +8,6 @@ module lcd2004_driver #(
     input  logic [159:0] line2,
     input  logic [159:0] line3,
     input  logic [159:0] line4,
-    // Estado opcional para tu proyecto futuro
     output logic         busy,
     // Interfaz física hacia la LCD 2004 (pin RW de la LCD debe ir a GND)
     output logic         Rs,

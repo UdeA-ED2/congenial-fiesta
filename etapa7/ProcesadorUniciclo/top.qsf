@@ -111,7 +111,6 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to leds[2]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to leds[1]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to leds[0]
 set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name SYSTEMVERILOG_FILE lcd2004_driver.sv
 set_global_assignment -name SYSTEMVERILOG_FILE Driver_Teclado.sv
 set_global_assignment -name SYSTEMVERILOG_FILE cntdiv_n.sv
@@ -152,3 +151,57 @@ set_global_assignment -name SYSTEMVERILOG_FILE maindec.sv
 set_global_assignment -name SYSTEMVERILOG_FILE aludec.sv
 set_global_assignment -name SYSTEMVERILOG_FILE mux3.sv
 set_global_assignment -name MIF_FILE mem.mif
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to COLUMNAS[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to COLUMNAS[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to COLUMNAS[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to COLUMNAS[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DISP[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DISP[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DISP[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DISP[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DISP[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DISP[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DISP[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DISP[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to En
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FILAS[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FILAS[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FILAS[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FILAS[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to Rs
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to Rw
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to data[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to data[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to data[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to data[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to data[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to data[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to data[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to data[0]
+set_location_assignment PIN_V10 -to FILAS[0]
+set_location_assignment PIN_V9 -to FILAS[1]
+set_location_assignment PIN_V8 -to FILAS[2]
+set_location_assignment PIN_V7 -to FILAS[3]
+set_location_assignment PIN_AA15 -to COLUMNAS[0]
+set_location_assignment PIN_W13 -to COLUMNAS[1]
+set_location_assignment PIN_AB13 -to COLUMNAS[2]
+set_location_assignment PIN_Y11 -to COLUMNAS[3]
+set_location_assignment PIN_W10 -to Rs
+set_location_assignment PIN_W9 -to En
+set_location_assignment PIN_W8 -to data[0]
+set_location_assignment PIN_W7 -to data[1]
+set_location_assignment PIN_W6 -to data[2]
+set_location_assignment PIN_V5 -to data[3]
+set_location_assignment PIN_W5 -to data[4]
+set_location_assignment PIN_AA14 -to data[5]
+set_location_assignment PIN_W12 -to data[6]
+set_location_assignment PIN_AB12 -to data[7]
+set_location_assignment PIN_C14 -to DISP[0]
+set_location_assignment PIN_E15 -to DISP[1]
+set_location_assignment PIN_C15 -to DISP[2]
+set_location_assignment PIN_C16 -to DISP[3]
+set_location_assignment PIN_E16 -to DISP[4]
+set_location_assignment PIN_D17 -to DISP[5]
+set_location_assignment PIN_C17 -to DISP[6]
+set_location_assignment PIN_D15 -to DISP[7]
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
